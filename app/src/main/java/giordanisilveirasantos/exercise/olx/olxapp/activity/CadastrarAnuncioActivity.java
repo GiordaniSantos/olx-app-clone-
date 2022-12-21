@@ -15,8 +15,10 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
 import com.blackcat.currencyedittext.CurrencyEditText;
 import com.santalu.maskara.widget.MaskEditText;
@@ -32,6 +34,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
 
     private EditText campoTitulo, campoDescricao;
     private ImageView imagem1, imagem2, imagem3;
+    private Spinner campoEstado, campoCategoria;
     private CurrencyEditText campoValor;
     private MaskEditText campoTelefone;
 
@@ -51,6 +54,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
         Permissoes.validarPermissoes(permissoes, this, 1);
 
         inicializaComponentes();
+        carregarDadosSpinner();
     }
 
     public void salvarAnuncio(View view){
@@ -58,9 +62,27 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
         Log.d("salvar", valor);
     }
 
+    private void carregarDadosSpinner(){
+        /*String[] estados = new String[]{
+        "SP", "RS"
+        }*/
+        //configura spinner estado
+        String[] estados = getResources().getStringArray(R.array.estados);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, estados);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        campoEstado.setAdapter(adapter);
+
+        //configura spinner categoria
+        String[] categorias = getResources().getStringArray(R.array.categoria);
+        ArrayAdapter<String> adapterCategoria = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categorias);
+        adapterCategoria.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        campoCategoria.setAdapter(adapterCategoria);
+
+    }
 
 
-    public void inicializaComponentes(){
+
+    private void inicializaComponentes(){
         campoTitulo = findViewById(R.id.editTitulo);
         campoDescricao = findViewById(R.id.editDescricao);
         campoValor = findViewById(R.id.editValor);
@@ -71,6 +93,8 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
         imagem1.setOnClickListener(this);
         imagem2.setOnClickListener(this);
         imagem3.setOnClickListener(this);
+        campoEstado = findViewById(R.id.spinnerEstado);
+        campoCategoria = findViewById(R.id.spinnerCategoria);
 
         //configura localidade para pt-BR
         Locale locale = new Locale("pt","BR");
