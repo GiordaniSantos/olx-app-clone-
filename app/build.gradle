@@ -58,6 +58,9 @@ dependencies {
 
     //Dependencia dialog de progresso
     implementation 'com.github.d-max:spots-dialog:1.1@aar'
+
+    //Dependencia para o Picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
 
 
