@@ -24,7 +24,6 @@ import android.widget.Toast;
 import com.blackcat.currencyedittext.CurrencyEditText;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.santalu.maskara.widget.MaskEditText;
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import dmax.dialog.SpotsDialog;
 import giordanisilveirasantos.exercise.olx.olxapp.R;
 import giordanisilveirasantos.exercise.olx.olxapp.helper.ConfiguracaoFirebase;
 import giordanisilveirasantos.exercise.olx.olxapp.helper.Permissoes;
@@ -47,6 +47,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
     private MaskEditText campoTelefone;
     private Anuncio anuncio;
     private StorageReference storage;
+    private android.app.AlertDialog dialog;
 
     private String[] permissoes = new String[]{
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -74,12 +75,15 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
 
     public void salvarAnuncio(){
 
+        dialog = new SpotsDialog.Builder().setContext(this).setMessage("Salvando anúncio").setCancelable(false).build();
+        dialog.show();
+
+
         //Salvar imagem no Storage
         for(int i = 0; i<listaFotosRecuperadas.size(); i++){
             String urlImagem = listaFotosRecuperadas.get(i);
             int tamanhoLista = listaFotosRecuperadas.size();
             salvarFotoStorage(urlImagem, tamanhoLista, i);
-
         }
 
 
@@ -103,6 +107,9 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
                         if(totalFotos == listaUrlFotos.size()){
                             anuncio.setFotos(listaUrlFotos);
                             anuncio.salvar();
+
+                            dialog.dismiss();
+                            finish();
                         }
 
                     }
@@ -123,7 +130,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
         String estado = campoEstado.getSelectedItem().toString();
         String categoria = campoCategoria.getSelectedItem().toString();
         String titulo = campoTitulo.getText().toString();
-        String valor = String.valueOf(campoValor.getRawValue());
+        String valor = campoValor.getText().toString();
         String telefone = campoTelefone.getText().toString();
         String descricao = campoDescricao.getText().toString();
 
@@ -140,12 +147,13 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
 
     public void validarDadosAnuncio(View view){
         anuncio = configurarAnuncio();
+        String valor = String.valueOf(campoValor.getRawValue());
 
         if(listaFotosRecuperadas.size() != 0){
             if(!anuncio.getEstado().isEmpty()){
                 if(!anuncio.getCategoria().isEmpty()){
                     if(!anuncio.getTitulo().isEmpty()){
-                        if(!anuncio.getValor().isEmpty() && !anuncio.getValor().equals("0")){
+                        if(!valor.isEmpty() && !valor.equals("0")){
                             if(!anuncio.getTelefone().isEmpty() && anuncio.getTelefone().length() >= 10){
                                 if(!anuncio.getDescricao().isEmpty()){
                                     salvarAnuncio();
