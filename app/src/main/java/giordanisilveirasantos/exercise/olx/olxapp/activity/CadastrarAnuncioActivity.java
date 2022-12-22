@@ -22,6 +22,11 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.blackcat.currencyedittext.CurrencyEditText;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.santalu.maskara.widget.MaskEditText;
 
 import java.util.ArrayList;
@@ -29,7 +34,9 @@ import java.util.List;
 import java.util.Locale;
 
 import giordanisilveirasantos.exercise.olx.olxapp.R;
+import giordanisilveirasantos.exercise.olx.olxapp.helper.ConfiguracaoFirebase;
 import giordanisilveirasantos.exercise.olx.olxapp.helper.Permissoes;
+import giordanisilveirasantos.exercise.olx.olxapp.model.Anuncio;
 
 public class CadastrarAnuncioActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -38,6 +45,8 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
     private Spinner campoEstado, campoCategoria;
     private CurrencyEditText campoValor;
     private MaskEditText campoTelefone;
+    private Anuncio anuncio;
+    private StorageReference storage;
 
     private String[] permissoes = new String[]{
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -45,11 +54,15 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
     };
 
     private List<String> listaFotosRecuperadas = new ArrayList<>();
+    private List<String> listaUrlFotos = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastrar_anuncio);
+
+        //cofigurações iniciais
+        storage = ConfiguracaoFirebase.getFireBaseStorage();
 
         //validar permissões
         Permissoes.validarPermissoes(permissoes, this, 1);
@@ -58,22 +71,83 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
         carregarDadosSpinner();
     }
 
-    public void validarDadosAnuncio(View view){
+
+    public void salvarAnuncio(){
+
+        //Salvar imagem no Storage
+        for(int i = 0; i<listaFotosRecuperadas.size(); i++){
+            String urlImagem = listaFotosRecuperadas.get(i);
+            int tamanhoLista = listaFotosRecuperadas.size();
+            salvarFotoStorage(urlImagem, tamanhoLista, i);
+
+        }
+
+
+    }
+
+    private void salvarFotoStorage(String url, int totalFotos, int contador){
+
+        //Criar nó no storage
+        final StorageReference imagemAnuncio = storage.child("imagens").child("anuncios").child(anuncio.getIdAnuncio()).child("imagem"+contador);
+
+        //fazer upload do arquivo
+        final UploadTask uploadTask = imagemAnuncio.putFile(Uri.parse(url));
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                imagemAnuncio.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        String urlConvertida = uri.toString(); //esta url funciona
+                        listaUrlFotos.add(urlConvertida);
+                        if(totalFotos == listaUrlFotos.size()){
+                            anuncio.setFotos(listaUrlFotos);
+                            anuncio.salvar();
+                        }
+
+                    }
+                });
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                exibirMensagemErro("Falha ao fazer upload!");
+                Log.i("INFO", "Falha ao fazer uploads: "+e.getMessage());
+            }
+        });
+
+    }
+
+    private Anuncio configurarAnuncio(){
         String estado = campoEstado.getSelectedItem().toString();
         String categoria = campoCategoria.getSelectedItem().toString();
         String titulo = campoTitulo.getText().toString();
         String valor = String.valueOf(campoValor.getRawValue());
         String telefone = campoTelefone.getText().toString();
-        String fone = campoTelefone.getText().toString();
         String descricao = campoDescricao.getText().toString();
 
+        anuncio = new Anuncio();
+        anuncio.setEstado(estado);
+        anuncio.setCategoria(categoria);
+        anuncio.setTitulo(titulo);
+        anuncio.setValor(valor);
+        anuncio.setTelefone(telefone);
+        anuncio.setDescricao(descricao);
+
+        return anuncio;
+    }
+
+    public void validarDadosAnuncio(View view){
+        anuncio = configurarAnuncio();
+
         if(listaFotosRecuperadas.size() != 0){
-            if(!estado.isEmpty()){
-                if(!categoria.isEmpty()){
-                    if(!titulo.isEmpty()){
-                        if(!valor.isEmpty() && !valor.equals("0")){
-                            if(!telefone.isEmpty() && fone.length() >= 10){
-                                if(!descricao.isEmpty()){
+            if(!anuncio.getEstado().isEmpty()){
+                if(!anuncio.getCategoria().isEmpty()){
+                    if(!anuncio.getTitulo().isEmpty()){
+                        if(!anuncio.getValor().isEmpty() && !anuncio.getValor().equals("0")){
+                            if(!anuncio.getTelefone().isEmpty() && anuncio.getTelefone().length() >= 10){
+                                if(!anuncio.getDescricao().isEmpty()){
                                     salvarAnuncio();
                                 }else{
                                     exibirMensagemErro("Preencha o campo descrição!");
@@ -102,12 +176,6 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
     private void exibirMensagemErro(String mensagem){
         Toast.makeText(this, mensagem, Toast.LENGTH_SHORT).show();
     }
-
-    public void salvarAnuncio(){
-        String valor = campoTelefone.getText().toString();
-        Log.d("salvar", valor);
-    }
-
 
 
     private void carregarDadosSpinner(){
