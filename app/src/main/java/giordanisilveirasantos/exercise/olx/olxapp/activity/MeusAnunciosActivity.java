@@ -1,5 +1,6 @@
 package giordanisilveirasantos.exercise.olx.olxapp.activity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
+import android.widget.AdapterView;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -25,10 +27,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import dmax.dialog.SpotsDialog;
 import giordanisilveirasantos.exercise.olx.olxapp.R;
 import giordanisilveirasantos.exercise.olx.olxapp.adapter.AdapterAnuncios;
 import giordanisilveirasantos.exercise.olx.olxapp.databinding.ActivityMeusAnunciosBinding;
 import giordanisilveirasantos.exercise.olx.olxapp.helper.ConfiguracaoFirebase;
+import giordanisilveirasantos.exercise.olx.olxapp.helper.RecyclerItemClickListener;
 import giordanisilveirasantos.exercise.olx.olxapp.model.Anuncio;
 
 public class MeusAnunciosActivity extends AppCompatActivity {
@@ -39,6 +43,7 @@ public class MeusAnunciosActivity extends AppCompatActivity {
     private List<Anuncio> anuncios = new ArrayList<>();
     private AdapterAnuncios adapterAnuncios;
     private DatabaseReference anuncioUsuarioRef;
+    private AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +64,35 @@ public class MeusAnunciosActivity extends AppCompatActivity {
         adapterAnuncios = new AdapterAnuncios(anuncios, this);
         recyclerAnuncios.setAdapter(adapterAnuncios);
 
+        //recupera anuncios para o usuario
         recuperarAnuncios();
+
+        //Adiciona o evento de clique no recyclerView
+        recyclerAnuncios.addOnItemTouchListener(
+                new RecyclerItemClickListener(
+                        this,
+                        recyclerAnuncios,
+                        new RecyclerItemClickListener.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(View view, int position) {
+
+                            }
+
+                            @Override
+                            public void onLongItemClick(View view, int position) {
+                                Anuncio anuncioSelecionado = anuncios.get(position);
+                                anuncioSelecionado.remover();
+
+                                adapterAnuncios.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                            }
+                        }
+                )
+        );
 
         //NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_meus_anuncios);
         //appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
@@ -74,6 +107,8 @@ public class MeusAnunciosActivity extends AppCompatActivity {
     }
 
     private void recuperarAnuncios(){
+        dialog = new SpotsDialog.Builder().setContext(this).setMessage("Buscando anúncios").setCancelable(false).build();
+        dialog.show();
         anuncioUsuarioRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -83,6 +118,7 @@ public class MeusAnunciosActivity extends AppCompatActivity {
                 }
                 Collections.reverse(anuncios);
                 adapterAnuncios.notifyDataSetChanged();
+                dialog.dismiss();
             }
 
             @Override
