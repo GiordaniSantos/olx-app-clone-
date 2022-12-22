@@ -1,6 +1,7 @@
 package giordanisilveirasantos.exercise.olx.olxapp.activity;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
