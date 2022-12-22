@@ -59,6 +59,7 @@ public class MeusAnunciosActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
+        //configurar recyclerView
         recyclerAnuncios.setLayoutManager(new LinearLayoutManager(this));
         recyclerAnuncios.setHasFixedSize(true);
         adapterAnuncios = new AdapterAnuncios(anuncios, this);
