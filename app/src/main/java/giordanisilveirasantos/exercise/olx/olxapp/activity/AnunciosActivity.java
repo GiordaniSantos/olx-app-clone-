@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -31,6 +32,7 @@ import dmax.dialog.SpotsDialog;
 import giordanisilveirasantos.exercise.olx.olxapp.R;
 import giordanisilveirasantos.exercise.olx.olxapp.adapter.AdapterAnuncios;
 import giordanisilveirasantos.exercise.olx.olxapp.helper.ConfiguracaoFirebase;
+import giordanisilveirasantos.exercise.olx.olxapp.helper.RecyclerItemClickListener;
 import giordanisilveirasantos.exercise.olx.olxapp.model.Anuncio;
 
 public class AnunciosActivity extends AppCompatActivity {
@@ -45,6 +47,7 @@ public class AnunciosActivity extends AppCompatActivity {
     private String filtroEstado="";
     private String filtroCategoria="";
     private boolean filtrandoPorEstado = false;
+    private Button buttonLimparFiltro;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +67,35 @@ public class AnunciosActivity extends AppCompatActivity {
         recyclerAnunciosPublicos.setAdapter(adapterAnuncios);
 
         recuperarAnunciosPublicos();
+        
+        //aplicar o evento de clique
+        recyclerAnunciosPublicos.addOnItemTouchListener(new RecyclerItemClickListener(this, recyclerAnunciosPublicos, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Anuncio anuncioSelecionado = listaAnuncios.get(position);
+                Intent i = new Intent(getApplicationContext(), DetalhesProdutoActivity.class);
+                i.putExtra("anuncioSelecionado", anuncioSelecionado);
+                startActivity(i);
+
+            }
+
+            @Override
+            public void onLongItemClick(View view, int position) {
+
+            }
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+            }
+        }));
+
+        buttonLimparFiltro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), AnunciosActivity.class));
+            }
+        });
 
     }
 
@@ -142,6 +174,10 @@ public class AnunciosActivity extends AppCompatActivity {
         }else{
             Toast.makeText(this,"Escolha primeiro uma região!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void limparFiltros(){
+        recuperarAnunciosPublicos();
     }
 
     public void recuperarAnunciosPorCategoria(){
@@ -280,5 +316,6 @@ public class AnunciosActivity extends AppCompatActivity {
         recyclerAnunciosPublicos = findViewById(R.id.recyclerAnunciosPublicos);
         buttonRegiao = findViewById(R.id.buttonRegiao);
         buttonCategoria = findViewById(R.id.buttonCategoria);
+        buttonLimparFiltro = findViewById(R.id.buttonLimparFiltro);
     }
 }

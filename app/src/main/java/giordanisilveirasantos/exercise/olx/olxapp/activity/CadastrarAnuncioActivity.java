@@ -62,6 +62,9 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastrar_anuncio);
 
+        //configura toolbar
+        getSupportActionBar().setTitle("Cadastrar anúncio");
+
         //cofigurações iniciais
         storage = ConfiguracaoFirebase.getFireBaseStorage();
 

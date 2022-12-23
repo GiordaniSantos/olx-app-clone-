@@ -49,9 +49,11 @@ public class MeusAnunciosActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMeusAnunciosBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        //configura toolbar
+
 
         //configurações iniciais
         anuncioUsuarioRef = ConfiguracaoFirebase.getFirebase().child("meus_anuncios").child(ConfiguracaoFirebase.getIdUsuario());
@@ -59,6 +61,7 @@ public class MeusAnunciosActivity extends AppCompatActivity {
         inicializaComponentes();
 
         setSupportActionBar(binding.toolbar);
+        getSupportActionBar().setTitle("Meus Anúncios");
 
         //configurar recyclerView
         recyclerAnuncios.setLayoutManager(new LinearLayoutManager(this));

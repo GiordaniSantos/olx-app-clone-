@@ -2,11 +2,12 @@ package giordanisilveirasantos.exercise.olx.olxapp.model;
 
 import com.google.firebase.database.DatabaseReference;
 
+import java.io.Serializable;
 import java.util.List;
 
 import giordanisilveirasantos.exercise.olx.olxapp.helper.ConfiguracaoFirebase;
 
-public class Anuncio {
+public class Anuncio implements Serializable {
 
     private String idAnuncio;
     private String estado;

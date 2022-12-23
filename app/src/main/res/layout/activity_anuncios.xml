@@ -32,14 +32,24 @@
             android:id="@+id/buttonCategoria"
             style="?attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:onClick="filtrarPorCategoria"
             android:text="Categoria" />
     </LinearLayout>
 
+    <Button
+        android:id="@+id/buttonLimparFiltro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?attr/buttonBarButtonStyle"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:text="Limpar filtros" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerAnunciosPublicos"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
 </LinearLayout>
